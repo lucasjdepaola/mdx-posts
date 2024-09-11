@@ -1,0 +1,56 @@
+---
+title: First ever group by
+date: 09-11-2024
+description: The first ever functional group by, created after dealing with functional programming for too long
+---
+
+# Problem
+
+When setting up (coincidentally) this website, I realized that I needed to use a database "Group by" query for my array of objects,
+I wanted to group the FilePosts by the route which is a sub property of a FilePost. I looked for this online to see if a native method existed,
+which I could not find, except for someone asking the same question, in which the solution involved a lot of complex mutations. I figured,
+since I'm on the subject, why not try to do this entirely functionally with no mutations, has this been done? While I'm at it, I might as well
+make it a one-liner.
+
+```js
+    export const groupBy = (arr: any[], key: string) =>  // Lucas DePaola
+        arr.reduce((pv, cv) => ({...pv, [cv[key]]: [...pv[cv[key]]||[], cv] || []}), {});
+```
+
+## Intuition behind this counterintuitive method
+
+- Create a lambda such that there is an array and a key that needs grouped by such key.
+- Reduce this array (iterate with an accum val), and change the reduction to an object
+- return the new object such that you spread the previous values (accumulate previous object), then use the value of the key as a key itself
+- Spread the value of the previous object which accesses the value of the same key as the original key (best way I can explain it)
+- If this value simply does not exist yet, create an empty array
+- If the key of the current value doesn't exist, create an empty array
+
+Here's an example using my specific case I needed this for
+
+This post is under the [posts](/posts) route, so the order would be
+```js
+{
+  posts: [
+    {
+      // this post as an object (containing everything you might imagine)
+    }
+  ],
+  news: [] // nothing yet (but it's important this value exists)
+
+}
+```
+
+In order to cache the metadata of my total posts locally, I created a script to traverse all of the mdx and md files recursively,
+except, the object looked like this:
+```js
+{
+  name: thispost.mdx,
+  route: posts // it's a sub trait, not a parent
+  metadata: ...etc
+}
+```
+
+Since I need to order all posts by it's route, I needed the groupBy function, thus leading me to the infamous functional one-liner
+
+

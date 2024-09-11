@@ -1,8 +1,68 @@
 ---
-title: Site documentation
-description: Information about the site
+title: Site notes
+description: Information about developing the site
 date: 9-11-2024
-slug: site-documentation
+slug: site-noting
 ---
 
 # Information about the site
+
+This website is in progress currently, and this article can describe the process of making this site.
+I'm currently in between trying to make the pseudo OS, and the post site itself. Setting up remote MDX via a git repository
+was a huge pain, but after setting it up, it seems like it's smooth sailing from here.
+
+## Intuition behind the posts page
+
+I was stuck between the choice of keeping my markdown posts inside of my own project directory, but I realized how quickly this
+became illogical. Imagine if you owned facebook, and every time someone made a post, you'd have to rebuild the site. I realized
+this was the logic when keeping posts inside of the site repo. When separating this from the main repo, it frees you from having
+to keep everything in one directory and rebuild an entire project upon every upload. Making this took a lot of work, and is still in progress,
+however, the decision to do it the right way instead of the fast way will pay off in the end.
+
+## How do you know what posts will be available if the repo is detached, along with sorting it date-wise?
+
+A content management system would typically handle this for you if you were to use one. Using MDX-remote is enough dependency for
+my liking, so I figured I would make a script post-side, that will generate a json file containing the proper static metadata.
+Think about it, if you need to commit this to a git repo, building a chain of commands can seamlessly upload the proper config.
+```bash
+upload() {
+  tsx parseMetaData.ts
+  git commit -am "new post"
+  git push -u origin main
+}
+upload
+```
+parse metadata should recursively go through the directories, parse front matter, then place it in a json file. Let's do this manually.
+
+```json
+{
+  posts: [
+    {
+      name: "site.mdx"
+      metadata: {
+        title: "Site notes"
+        description: "Information about developing the site"
+        date: "9-11-2024"
+        slug: "site-noting"
+      }
+    },
+    {
+      name: first.mdx
+      ... etc
+    }
+  ]
+}
+```
+This could be even more modular if were made as a cli tool, but assuming typescript is downloaded for my own personal use is fair enough.
+
+Having this data now allows for the [posts](/posts) to have all the information required to route to the mdx posts without knowing of the routes
+
+This specific solution solves a problem of wanting a personally integrated CMS (blog, news, etc) in your website, without needing static
+rebuilds, a hefty CMS (just git push), or content in any specific directory. This is all tailored to where someone wants to write.
+
+## How can you make this less technical?
+
+To make this even more tailored and less technical, you can create a personal obsidian vault dedicated to this repo, so that editing markdown is wysiwyg.
+The only issue is double bracket linking. Typically in obsidian, you get a nice auto completion when typing a \[\]link\]\] as shown.
+The problem is that this only works in obsidian, and this is not real markdown. This instead translates to \[link\]\(link.md\) which may be
+tedious to type. The obsidian editor has a plugin that covers this, so there's zero overhead.

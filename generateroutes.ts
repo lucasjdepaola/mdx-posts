@@ -63,11 +63,7 @@ const main = async() => {
   console.log(groupedByRoute);
 
   const jsGroupBy = groupBy(frontMatter, "route");
-  console.log("---- before")
-  console.log(jsGroupBy);
-  console.log("---- after")
-  // const uniqueNames = routeNames.filter((e, i, a) => a.indexOf(e)  === i);
-  frontMatter.map(e => console.log(e));
+  fs.writeFile("./routedata.json", JSON.stringify(jsGroupBy, null, 2), () => {});
 }
 main()
 

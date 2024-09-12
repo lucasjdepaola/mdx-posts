@@ -1,0 +1,40 @@
+{
+  "news": [
+    {
+      "name": "/news/breakingfirst.md",
+      "route": "news",
+      "metadata": {}
+    }
+  ],
+  "posts": [
+    {
+      "name": "/posts/first.mdx",
+      "route": "posts",
+      "metadata": {
+        "title": "Example Post",
+        "description": "This frontmatter description will appear below the title",
+        "date": "9-09-2024",
+        "slug": "example-post"
+      }
+    },
+    {
+      "name": "/posts/functionalgroupby.mdx",
+      "route": "posts",
+      "metadata": {
+        "title": "First ever functional javascript group by",
+        "date": "09-11-2024",
+        "description": "The first ever functional group by, created after dealing with functional programming for too long"
+      }
+    },
+    {
+      "name": "/posts/site.mdx",
+      "route": "posts",
+      "metadata": {
+        "title": "Site notes",
+        "description": "Information about developing the site",
+        "date": "9-11-2024",
+        "slug": "site-noting"
+      }
+    }
+  ]
+}

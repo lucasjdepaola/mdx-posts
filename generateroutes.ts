@@ -13,8 +13,9 @@ interface PostFile {
   metadata: any;
 }
 
-interface PostRoute {
-  elements: (PostRoute | PostFile)[]
+
+interface ParsedRemoteMetaData {
+  [route: string]: PostFile[]; // we however just want one key
 }
 
 const IGNORE: string[] = ["node_modules", ".git", ".obsidian"];

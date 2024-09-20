@@ -18,6 +18,16 @@
       }
     },
     {
+      "name": "/posts/firstrecursivewebwm.mdx",
+      "route": "posts",
+      "metadata": {
+        "title": "Recursive Window Manager in react",
+        "description": "Never been done before.",
+        "date": "9-20-2024",
+        "slug": "first-recursive-webwm"
+      }
+    },
+    {
       "name": "/posts/functionalgroupby.mdx",
       "route": "posts",
       "metadata": {

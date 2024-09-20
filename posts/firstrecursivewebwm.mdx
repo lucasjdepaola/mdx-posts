@@ -1,0 +1,91 @@
+---
+title: Recursive Window Manager in react
+description: Never been done before.
+date: 9-20-2024
+slug: first-recursive-webwm
+---
+
+# Recursive Window Manager in react
+
+When developing a browser OS, creating a tiling window manager would be entirely unique to the web, and there is not currently one out there.
+Seeing traditional tiling window managers, there are typically a few steps in order to implement one correctly.
+
+- A meta key (control/ctrl is the meta key for this OS)
+- 10 workspaces (ctrl-[0-9])
+- Moveable windows (ctrl-shift-[0-9], ctrl-shift-[hjkl])
+- Windows that auto size, and tile in a visually pleasing manner
+
+Meta key, workspaces, and moveable windows were fairly trivial. Simply use a state for the current workspace (one that is reactive),
+while keeping an array of 1-10 passive workspaces that aren't in use (write through the reactive one). The hard part is tiling the windows.
+The easiest first step is to try and see if the problem already has been worked on for some pointers (it has not on the web). One might
+think to do this entirely manual, keeping account for the exact fixed width, height, top, left, for the current app. This would require
+a lot of edge cases, manual dom manipulation (if using states this would be equally hard), and at the end of the day, not a very dynamic
+solution when wanting to branch off of this and use different tiling solutions. For this to be a success, it cannot be hard coded, it cannot
+be fixed in length (infinite apps should be capable per window, do not solve for 1,2,3, ... n), and it needs to be relatively flat, meaning not
+to manually create new divs to contain the windows.
+
+Let's lay out more explicitly what this window manager does to a window, given cases 1-4, which can infer n.
+
+- Base case: No windows open, don't do anything.
+- One window: App window is full size of the screen (while still showing the top bar)
+- Two windows: ^^ Window above pushes left, 1/2 width. Second window is equally 1/2 width on the right side of the screen
+- Three windows: Window1 stays the same (from here on out), window2 now shrinks half in height, pushing to the top, with the third window filling this gap
+- Four windows: Window3 shrinks half in width, Window4 fills this gap, (same pattern to infinity)
+
+Now that we know the intended goal (albeit complex when thinking stylistically rather than programatically), implementing this becomes much
+more tricky when finding a truly elegant solution.
+
+I started by trying to use flexbox, which simply sandwhiched every div row or height wise, with zero alternation (fail 1). Obviously one
+style trait could not solve this issue. But we now know that flexbox is the elegant way of solving this, so solving it in a flex manner
+is now firm. Diving into advanced css techniques, nth-child seemed promising. What if we used a flex-direction switch for every odd nth child?
+The problem here lies within the hierarchy, every odd div does in fact need a flex-direction change, however, every app container has no subdivs
+and the parent container contains all sub divs, meaning that changing flex-direction cannot do anything, as it can only mutate it's own subdivs,
+which are none. This is slowly making the answer more apparent.
+
+This solution does not exist anywhere, to save any future tediousness, I asked gpt-4o this question, to which it had the same tone
+as I, the problem was very clear, yet an elegant solution is simply not possible. It recommended I hard-code nth-child (1, 2, ... 6)
+styles, making the divs progressively smaller, to which this did not work either. The conversations were more iterative rather than asking
+a magic genie for the answer, which it did not have any for me sadly. I decided to take a break.
+
+## The answer
+Sometimes sitting around and doing nothing makes the answer so trivial, what if jsx had recursive components which could handle potential
+html depth of hierarchy, rather than keeping it flat (the answer is no longer feasible when flat). It turns out that jsx in fact allows recursion.
+So what would the structure look like? Imagine it like this pseudo code.
+```jsx
+component Recurse(app)
+  <div name="recursiveparent">
+    <div name="self">{app}</div>
+    if app.hasNext()
+      then <Recurse app={app.nextapp()} />
+    /* if there's another app, render it recursively */
+  </div>
+```
+
+This recursive structure takes what should be hundreds of lines of (bug prone) code, into a few powerful lines of code.
+All we need now is an understanding of the condition for hasNext().
+Simple, if the element index is not greater than the list length.
+
+A few small tweaks such as putting the component into the scope of the array, and giving the component an index property instead,
+the solution is as follows
+```jsx
+        return app && ( // app exists, and component
+            <div
+            className="flex w-full h-full" // take up full width and height
+            style={{ flexDirection: p.index % 2 === 1 ? "column" : "row", }}> // alternate between row and col direction
+                <div className="flex-1"> // grow as much as possible
+                    <AppWrapper {...props}>
+                        <app.component {...props} />
+                    </AppWrapper>
+                </div>
+                {p.index < props.openedApps.length - 1 && (
+                // condition in order to recurse^^
+                    <div className="flex-1">
+                        <RecursiveTileApps index={p.index + 1} /> // recurse
+                    </div>
+                )}
+            </div>
+        )
+```
+
+I trimmed this code down a bit (compared to the production answer), and looks slightly complicated, but this solution is extremely
+elegant and has no edge cases, which was well worth the effort.
